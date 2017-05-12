@@ -2,27 +2,34 @@ import React, { PropTypes as T } from 'react';
 import styles from './styles.module.css';
 import classNames from 'classnames';
 
-const Train = ({ id, line, status, canEdit, updateTrains }) => {
+const Train = ({ token, id, line, status, canEdit, updateTrains }) => {
 
   const updateStatus = (event) => {
     const value = event.target.value;
     const trainId = event.target.dataset.trainid;
 
     fetch(`/api/v1/trains/${trainId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ 
-        train: { status: value }
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(updatedTrains => {
-      updateTrains(updatedTrains);
-    })
-    .catch(error => console.log('Error: ', error));
-  }
+        method: 'PATCH',
+        body: JSON.stringify({
+          train: { status: value },
+          token
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+        })
+      .then(response => {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+
+        return response.json();
+      })
+      .then(updatedTrains => {
+        updateTrains(updatedTrains);
+      })
+      .catch(error => console.log('Error: ', error));
+    }
 
   return (
     <div className={`${styles[line]} ${styles.train}`}>
@@ -38,6 +45,6 @@ const Train = ({ id, line, status, canEdit, updateTrains }) => {
       }
     </div>
   );
-};
+}
 
 export default Train;
